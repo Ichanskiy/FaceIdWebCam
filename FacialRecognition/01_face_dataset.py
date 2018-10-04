@@ -1,56 +1,33 @@
-''''
-Capture multiple Faces from multiple users to be stored on a DataBase (dataset directory)
-	==> Faces will be stored on a directory: dataset/ (if does not exist, pls create one)
-	==> Each face will have a unique numeric integer ID as 1, 2, 3, etc                       
-
-Based on original code by Anirban Kar: https://github.com/thecodacus/Face-Recognition    
-
-Developed by Marcelo Rovai - MJRoBot.org @ 21Feb18    
-
-'''
-
 import cv2
 import os
+import numpy as np
+from PIL import Image
 
-cam = cv2.VideoCapture(0)
-cam.set(3, 640) # set video width
-cam.set(4, 480) # set video height
+count = 30
+dirPath = ""
+listFiles = []
+
+for (dirPath, dirnames, filenames) in os.walk("C:/Users/Ichanskiy/PycharmProjects/FaceIdWebCam/FacialRecognition/input/"):
+    listFiles = filenames
+    print(list)
+    print(dirPath)
+    print(dirnames)
+    break
 
 face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-# For each person, enter one numeric face id
-face_id = input('\n enter user id end press <return> ==>  ')
+for fileName in listFiles:
+    im = Image.open(dirPath + fileName)
+    face_id = fileName.replace(".jpg", "")
+    im2arr = np.array(im)
 
-print("\n [INFO] Initializing face capture. Look the camera and wait ...")
-# Initialize individual sampling face count
-count = 0
-
-while(True):
-
-    ret, img = cam.read()
-    img =cv2.flip(img, 1) # flip video image vertically
+    img = cv2.flip(im2arr, 1)  # flip video image vertically
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     faces = face_detector.detectMultiScale(gray, 1.3, 5)
-
-    for (x,y,w,h) in faces:
-
-        cv2.rectangle(img, (x,y), (x+w,y+h), (255,0,0), 2)
-        count += 1
-
-        # Save the captured image into the datasets folder
-        cv2.imwrite("C:/Users/Ichanskiy/PycharmProjects/OpenCV-Face-Recognition/FaceDetection/dataset/User." + str(face_id) + '.' + str(count) + ".jpg", gray[y:y+h,x:x+w])
-
-        cv2.imshow('image', img)
-
-    k = cv2.waitKey(100) & 0xff # Press 'ESC' for exiting video
-    if k == 27:
-        break
-    elif count >= 30: # Take 30 face sample and stop video
-         break
-
-# Do a bit of cleanup
-print("\n [INFO] Exiting Program and cleanup stuff")
-cam.release()
-cv2.destroyAllWindows()
-
-
+    for i in range(count):
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+            # Save the captured image into the datasets folder
+            cv2.imwrite("C:/Users/Ichanskiy/PycharmProjects/FaceIdWebCam/FacialRecognition/dataset/User." + str(
+                face_id) + '.' + str(count) + ".jpg", gray[y:y + h, x:x + w])
+            count += 1
